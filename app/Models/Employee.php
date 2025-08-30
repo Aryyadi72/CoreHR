@@ -29,11 +29,12 @@ class Employee extends Model
         'born_on',
         'start_work',
         'end_work',
+        'image',
         'is_active',
         'inputed_by',
     ];
 
-    public function Dept() : BelongsTo
+    public function Dept(): BelongsTo
     {
         return $this->belongsTo(Dept::class);
     }
@@ -43,12 +44,12 @@ class Employee extends Model
         return $this->belongsTo(Grade::class);
     }
 
-    public function Jabatan() : BelongsTo
+    public function Jabatan(): BelongsTo
     {
         return $this->belongsTo(Jabatan::class);
     }
 
-    public function Status() : BelongsTo
+    public function Status(): BelongsTo
     {
         return $this->belongsTo(Status::class);
     }

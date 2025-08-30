@@ -5,6 +5,10 @@ namespace App\Filament\Resources\Depts;
 use App\Filament\Resources\Depts\Pages\ManageDepts;
 use App\Models\Dept;
 use BackedEnum;
+use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Actions\CreateAction;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Icon;
 use UnitEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,6 +36,8 @@ class DeptResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Dept';
 
+    protected static ?string $pluralModelLabel = 'Dept';
+
     protected static ?string $navigationLabel = 'Dept';
 
     protected static ?int $navigationSort = 1;
@@ -50,8 +56,14 @@ class DeptResource extends Resource
         return $schema
             ->components([
                 TextInput::make('dept')
-                    ->required(),
-                TextInput::make('inputed_by'),
+                    ->label('Department')
+                    ->placeholder('Type name of Department')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('inputed_by')
+                    ->default('Admin')
+                    ->beforeLabel(Icon::make(Heroicon::User))
+                    ->maxLength(255),
             ]);
     }
 
@@ -61,24 +73,30 @@ class DeptResource extends Resource
             ->recordTitleAttribute('Dept')
             ->columns([
                 TextColumn::make('dept')
-                    ->searchable()
+                    ->label('Department')
                     ->sortable(),
                 TextColumn::make('inputed_by')
-                    ->searchable()
+                    ->color('success')
+                    ->icon(Heroicon::User)
                     ->sortable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->isoDateTime('LLL'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->isoDateTime('LLL'),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->isoDateTime('LLL'),
             ])
+            ->defaultSort('created_at', direction: 'desc')
+            ->searchable(['dept', 'inputed_by'])
             ->filters([
                 TrashedFilter::make(),
             ])
@@ -94,6 +112,12 @@ class DeptResource extends Resource
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
+                CreateAction::make()
+                    ->label('Add')
+                    ->color('info')
+                    ->icon('heroicon-m-plus'),
+                ExcelImportAction::make()
+                    ->color("success"),
             ]);
     }
 

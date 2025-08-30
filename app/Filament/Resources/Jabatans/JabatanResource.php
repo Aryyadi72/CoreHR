@@ -5,6 +5,9 @@ namespace App\Filament\Resources\Jabatans;
 use App\Filament\Resources\Jabatans\Pages\ManageJabatans;
 use App\Models\Jabatan;
 use BackedEnum;
+use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Actions\CreateAction;
+use Filament\Schemas\Components\Icon;
 use UnitEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,6 +35,8 @@ class JabatanResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Jabatan';
 
+    protected static ?string $pluralModelLabel = 'Jabatan';
+
     protected static ?string $navigationLabel = 'Jabatan';
 
     protected static ?int $navigationSort = 3;
@@ -50,8 +55,12 @@ class JabatanResource extends Resource
         return $schema
             ->components([
                 TextInput::make('jabatan')
-                    ->required(),
-                TextInput::make('inputed_by'),
+                    ->label('Jabatan')
+                    ->placeholder('Type name of Jabatan')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('inputed_by')
+                    ->beforeLabel(Icon::make(Heroicon::User)),
             ]);
     }
 
@@ -61,9 +70,11 @@ class JabatanResource extends Resource
             ->recordTitleAttribute('Jabatan')
             ->columns([
                 TextColumn::make('jabatan')
-                    ->searchable(),
+                    ->sortable(),
                 TextColumn::make('inputed_by')
-                    ->searchable(),
+                    ->color('success')
+                    ->icon(Heroicon::User)
+                    ->sortable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -77,6 +88,8 @@ class JabatanResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', direction: 'desc')
+            ->searchable(['jabatan', 'inputed_by'])
             ->filters([
                 TrashedFilter::make(),
             ])
@@ -92,6 +105,12 @@ class JabatanResource extends Resource
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
+                CreateAction::make()
+                    ->label('Add')
+                    ->color('info')
+                    ->icon('heroicon-m-plus'),
+                ExcelImportAction::make()
+                    ->color("success"),
             ]);
     }
 

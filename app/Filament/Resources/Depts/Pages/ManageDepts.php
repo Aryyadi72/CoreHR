@@ -17,8 +17,8 @@ class ManageDepts extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
-            ExcelImportAction::make()->color("primary"),
+            // CreateAction::make(),
+            // ExcelImportAction::make()->color("primary"),
         ];
     }
 }

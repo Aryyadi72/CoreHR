@@ -5,6 +5,9 @@ namespace App\Filament\Resources\Grades;
 use App\Filament\Resources\Grades\Pages\ManageGrades;
 use App\Models\Grade;
 use BackedEnum;
+use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Actions\CreateAction;
+use Filament\Schemas\Components\Icon;
 use UnitEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,6 +35,8 @@ class GradeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Grade';
 
+    protected static ?string $pluralModelLabel = 'Grade';
+
     protected static ?string $navigationLabel = 'Grade';
 
     protected static ?int $navigationSort = 2;
@@ -50,8 +55,12 @@ class GradeResource extends Resource
         return $schema
             ->components([
                 TextInput::make('grade')
-                    ->required(),
-                TextInput::make('inputed_by'),
+                    ->label('Grade')
+                    ->placeholder('Type name of Grade')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('inputed_by')
+                    ->beforeLabel(Icon::make(Heroicon::User)),
             ]);
     }
 
@@ -61,9 +70,12 @@ class GradeResource extends Resource
             ->recordTitleAttribute('Grade')
             ->columns([
                 TextColumn::make('grade')
-                    ->searchable(),
+                    ->label('Grade')
+                    ->sortable(),
                 TextColumn::make('inputed_by')
-                    ->searchable(),
+                    ->sortable()
+                    ->color('success')
+                    ->icon(Heroicon::User),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -77,6 +89,8 @@ class GradeResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', direction: 'desc')
+            ->searchable(['grade', 'inputed_by'])
             ->filters([
                 TrashedFilter::make(),
             ])
@@ -92,6 +106,12 @@ class GradeResource extends Resource
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
+                CreateAction::make()
+                    ->label('Add')
+                    ->color('info')
+                    ->icon('heroicon-m-plus'),
+                ExcelImportAction::make()
+                    ->color("success"),
             ]);
     }
 

@@ -5,6 +5,9 @@ namespace App\Filament\Resources\Statuses;
 use App\Filament\Resources\Statuses\Pages\ManageStatuses;
 use App\Models\Status;
 use BackedEnum;
+use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Actions\CreateAction;
+use Filament\Schemas\Components\Icon;
 use UnitEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,6 +35,8 @@ class StatusResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Status';
 
+    protected static ?string $pluralModelLabel = 'Status';
+
     protected static ?string $navigationLabel = 'Status';
 
     protected static ?int $navigationSort = 4;
@@ -50,8 +55,12 @@ class StatusResource extends Resource
         return $schema
             ->components([
                 TextInput::make('status')
-                    ->required(),
-                TextInput::make('inputed_by'),
+                    ->label('Status')
+                    ->placeholder('Type name of Status')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('inputed_by')
+                    ->beforeLabel(Icon::make(Heroicon::User)),
             ]);
     }
 
@@ -61,9 +70,11 @@ class StatusResource extends Resource
             ->recordTitleAttribute('Status')
             ->columns([
                 TextColumn::make('status')
-                    ->searchable(),
+                    ->sortable(),
                 TextColumn::make('inputed_by')
-                    ->searchable(),
+                    ->sortable()
+                    ->color('success')
+                    ->icon(Heroicon::User),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -77,6 +88,8 @@ class StatusResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', direction: 'desc')
+            ->searchable(['status', 'inputed_by'])
             ->filters([
                 TrashedFilter::make(),
             ])
@@ -92,6 +105,12 @@ class StatusResource extends Resource
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
+                CreateAction::make()
+                    ->label('Add')
+                    ->color('info')
+                    ->icon('heroicon-m-plus'),
+                ExcelImportAction::make()
+                    ->color("success"),
             ]);
     }
 
